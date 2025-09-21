@@ -65,9 +65,9 @@ void player_handle_keyboard(unsigned char key, bool is_pressed) {
     if (is_pressed) {
         if (key == 27) { // Tecla ESC
              GameState current_state = game_get_state();
-             if (current_state == STATE_PLAYING || current_state == STATE_ESCAPING) {
-                 game_set_state(STATE_PAUSED);
-                 glutSetCursor(GLUT_CURSOR_INHERIT); // Mostra o cursor
+             if ((current_state == STATE_PLAYING) & (current_state != STATE_ESCAPING)) {
+                 game_set_state(STATE_PAUSED); // Apenas pausa o jogo
+                 glutSetCursor(GLUT_CURSOR_INHERIT);
              }
         }
     }

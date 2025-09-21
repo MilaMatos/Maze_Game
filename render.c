@@ -63,6 +63,14 @@ void render_scene(const int maze[MAZE_WIDTH][MAZE_HEIGHT], GameState state) {
 
     gluLookAt(p->x, 0.5, p->z, look_x, look_y, look_z, 0.0, 1.0, 0.0);
 
+
+    if (state == STATE_ESCAPING || state == STATE_WON || state == STATE_LOST) {
+        glEnable(GL_LIGHT2); // Liga a luz da saída se o jogador estiver escapando ou o jogo tiver terminado
+    } else {
+        glDisable(GL_LIGHT2); // Mantém a luz desligada em qualquer outro estado
+    }
+
+
     lighting_update_dynamic(maze);
 
     draw_ceiling_and_floor();
@@ -91,7 +99,7 @@ static void setup_lighting() {
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
-    GLfloat global_ambient[] = {0.08, 0.08, 0.06, 1.0};
+    GLfloat global_ambient[] = {0.06, 0.06, 0.04, 1.0};
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 
     glDisable(GL_LIGHT0);
@@ -100,17 +108,17 @@ static void setup_lighting() {
     GLfloat sphere_diffuse[] = {1.0, 0.1, 0.1, 1.0};
     glLightfv(GL_LIGHT1, GL_DIFFUSE, sphere_diffuse);
     glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0f);
-    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.3f);
-    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.1f);
+    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.8f);
+    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.5f);
 
-    glEnable(GL_LIGHT2);
-    GLfloat exit_diffuse[] = {1.0, 1.0, 1.0, 1.0};
-    GLfloat exit_pos[] = {13.5f * CUBE_SIZE, WALL_HEIGHT, 13.5f * CUBE_SIZE, 1.0f};
+    glDisable(GL_LIGHT2);
+    GLfloat exit_diffuse[] = {1.0, 0.0, 0.0, 1.0};
+    GLfloat exit_pos[] = {13.5f * CUBE_SIZE, WALL_HEIGHT / 2.0f, 13.5f * CUBE_SIZE, 1.0f};
     glLightfv(GL_LIGHT2, GL_DIFFUSE, exit_diffuse);
     glLightfv(GL_LIGHT2, GL_POSITION, exit_pos);
     glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0f);
-    glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0.3f);
-    glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.1f);
+    glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0.02f);
+    glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.001f);
 }
 
 static void lighting_update_dynamic(const int maze[MAZE_WIDTH][MAZE_HEIGHT]) {

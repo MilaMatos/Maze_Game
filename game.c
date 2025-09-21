@@ -9,16 +9,17 @@
 
 // --- Variáveis de Estado do Jogo ---
 GameState game_state;
+static GameState previous_game_state;
 int collectibles_eaten = 0;
 int total_collectibles = 0;
 float escape_timer = ESCAPE_SECONDS;
 
 // --- Layout do Labirinto ---
 int maze_grid[MAZE_WIDTH][MAZE_HEIGHT] = {
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, {1,0,0,1,0,0,0,0,0,1,1,0,1,0,1}, {1,1,0,1,1,1,0,1,0,0,1,0,1,0,1},
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, {1,0,0,1,0,0,0,0,0,1,1,0,1,2,1}, {1,1,0,1,1,1,0,1,0,0,1,0,1,0,1},
     {1,0,0,0,0,1,0,1,0,1,1,0,0,0,1}, {1,0,1,1,0,1,0,1,0,1,0,0,1,0,1}, {1,0,0,1,0,1,0,0,0,1,0,0,1,0,1},
     {1,1,0,1,0,0,1,1,1,1,0,1,1,0,1}, {1,0,0,0,0,1,1,0,0,0,0,0,0,0,1}, {1,0,1,1,1,1,0,0,1,0,1,1,1,0,1},
-    {1,0,0,0,0,0,0,1,1,0,0,0,1,0,1}, {1,0,1,1,1,1,0,1,0,1,1,0,1,2,1}, {1,0,0,0,0,1,0,0,0,0,1,0,0,0,1},
+    {1,0,0,0,0,0,0,1,1,0,0,0,1,0,1}, {1,0,1,1,1,1,0,1,0,1,1,0,1,0,1}, {1,0,0,0,0,1,0,0,0,0,1,0,0,0,1},
     {1,1,1,0,1,1,1,1,1,0,1,1,1,0,1}, {1,0,0,0,0,0,0,0,1,0,0,0,0,9,1}, {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 // Cópia para resetar o jogo
@@ -51,38 +52,35 @@ bool game_init() {
 }
 
 void game_update() {
-    glutPostRedisplay(); // Marca a tela para redesenhar
+    glutPostRedisplay();
 
-    // A lógica de atualização só acontece se estivermos jogando
-    if (game_state != STATE_PLAYING && game_state != STATE_ESCAPING) {
-        return;
-    }
+    // --- ALTERADO: Toda a lógica de jogo agora para se o jogo estiver pausado ---
+    if (game_state == STATE_PLAYING || game_state == STATE_ESCAPING) {
+        player_update(maze_grid);
 
-    player_update(maze_grid);
+        int px = (int)(player_get()->x / CUBE_SIZE);
+        int pz = (int)(player_get()->z / CUBE_SIZE);
 
-    int px = (int)(player_get()->x / CUBE_SIZE);
-    int pz = (int)(player_get()->z / CUBE_SIZE);
-
-    if (px >= 0 && px < MAZE_WIDTH && pz >= 0 && pz < MAZE_HEIGHT) {
-        if (maze_grid[px][pz] == 2) {
-            maze_grid[px][pz] = 0;
-            collectibles_eaten++;
-            if (collectibles_eaten == total_collectibles) {
-                game_state = STATE_ESCAPING;
+        if (px >= 0 && px < MAZE_WIDTH && pz >= 0 && pz < MAZE_HEIGHT) {
+            if (maze_grid[px][pz] == 2) {
+                maze_grid[px][pz] = 0;
+                collectibles_eaten++;
+                if (collectibles_eaten == total_collectibles) {
+                    game_set_state(STATE_ESCAPING);
+                }
             }
         }
-    }
 
-    if (game_state == STATE_ESCAPING) {
-        escape_timer -= 16.0f / 1000.0f;
-        // Área de vitória: precisa estar na coordenada X da saída e ter passado dela em Z
-        if (px == 13 && player_get()->z > 13.5 * CUBE_SIZE) {
-             game_state = STATE_WON;
-             glutSetCursor(GLUT_CURSOR_INHERIT);
-        } else if (escape_timer <= 0.0f) {
-            escape_timer = 0.0f;
-            game_state = STATE_LOST;
-            glutSetCursor(GLUT_CURSOR_INHERIT);
+        if (game_state == STATE_ESCAPING) {
+            escape_timer -= 16.0f / 1000.0f; // O timer agora está dentro do bloco que pausa
+            if (px == 13 && player_get()->z > 13.5 * CUBE_SIZE) {
+                 game_set_state(STATE_WON);
+                 glutSetCursor(GLUT_CURSOR_INHERIT);
+            } else if (escape_timer <= 0.0f) {
+                escape_timer = 0.0f;
+                game_set_state(STATE_LOST);
+                glutSetCursor(GLUT_CURSOR_INHERIT);
+            }
         }
     }
 }
