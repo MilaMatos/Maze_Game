@@ -1,0 +1,76 @@
+# depslib dependency file v1.0
+1758246612 source:c:\users\van_c\desktop\labirinto\maze_game\main.c
+	<GL/glut.h>
+	<math.h>
+	<stdbool.h>
+	<stdio.h>
+	"config.h"
+
+1758199904 c:\users\van_c\desktop\labirinto\maze_game\config.h
+
+1758215795 source:c:\users\van_c\desktop\labirinto\maze_game\soil2_implementation.c
+	"SOIL2.h"
+
+1755266250 c:\users\van_c\desktop\labirinto\maze_game\soil2.h
+
+1758406327 source:c:\users\van_c\desktop\testes\maze_game\main.c
+	<GL/glut.h>
+	"game.h"
+	"player.h"
+
+1758414767 c:\users\van_c\desktop\testes\maze_game\config.h
+
+1758414887 source:c:\users\van_c\desktop\testes\maze_game\game.c
+	<GL/glut.h>
+	<stdio.h>
+	<string.h>
+	"game.h"
+	"config.h"
+	"render.h"
+	"player.h"
+	"ui.h"
+
+1758407044 c:\users\van_c\desktop\testes\maze_game\game.h
+	"config.h"
+	<stdbool.h>
+
+1758415301 c:\users\van_c\desktop\testes\maze_game\render.h
+	<stdbool.h>
+	"config.h"
+
+1758411000 c:\users\van_c\desktop\testes\maze_game\player.h
+	"config.h"
+	<stdbool.h>
+
+1758415320 c:\users\van_c\desktop\testes\maze_game\ui.h
+	"config.h"
+
+1758415155 source:c:\users\van_c\desktop\testes\maze_game\player.c
+	<GL/glut.h>
+	<math.h>
+	"player.h"
+	"game.h"
+	<ctype.h>
+
+1758410991 source:c:\users\van_c\desktop\testes\maze_game\texture.c
+	"texture.h"
+	<stdio.h>
+	<stdlib.h>
+
+1758406773 c:\users\van_c\desktop\testes\maze_game\texture.h
+	<GL/glut.h>
+
+1758407956 source:c:\users\van_c\desktop\testes\maze_game\ui.c
+	<GL/glut.h>
+	<stdio.h>
+	<stdbool.h>
+	"ui.h"
+
+1758415889 source:c:\users\van_c\desktop\testes\maze_game\render.c
+	<GL/glut.h>
+	<stdio.h>
+	<math.h>
+	"render.h"
+	"texture.h"
+	"player.h"
+
