@@ -8,6 +8,7 @@
 // Variáveis de textura
 static GLuint wall_texture_id, floor_texture_id, ceiling_texture_id;
 static GLuint door_texture_id, sphere_texture_id;
+static GLuint menu_bg_texture_id;
 static GLUquadric* sphere_quadric = NULL;
 
 // Protótipos de funções locais
@@ -31,8 +32,10 @@ bool render_init() {
     door_texture_id = load_texture_bmp("textures/door4.bmp");
     sphere_texture_id = load_texture_bmp("textures/sphere2.bmp");
 
+    menu_bg_texture_id = load_texture_bmp("textures/menu_bg.bmp");
+
     if (wall_texture_id == 0 || floor_texture_id == 0 || ceiling_texture_id == 0 ||
-        door_texture_id == 0 || sphere_texture_id == 0) {
+        door_texture_id == 0 || sphere_texture_id == 0 || menu_bg_texture_id == 0) {
         return false;
     }
 
@@ -273,4 +276,10 @@ static void draw_collectibles(const int maze[MAZE_WIDTH][MAZE_HEIGHT]) {
     GLfloat no_emission[] = {0.0, 0.0, 0.0, 1.0};
     glMaterialfv(GL_FRONT, GL_EMISSION, no_emission);
 }
-// static void draw_player_model() { ... }
+
+GLuint render_get_texture_id(const char* name) {
+    if (strcmp(name, "menu_bg") == 0) {
+        return menu_bg_texture_id;
+    }
+    return 0;
+}

@@ -37,9 +37,29 @@
 			<Add library="glu32" />
 		</Linker>
 		<Unit filename="config.h" />
+		<Unit filename="game.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="game.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="player.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="player.h" />
+		<Unit filename="render.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="render.h" />
+		<Unit filename="texture.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="texture.h" />
+		<Unit filename="ui.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ui.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

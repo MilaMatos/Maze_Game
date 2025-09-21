@@ -10,5 +10,6 @@ void render_scene(const int maze[MAZE_WIDTH][MAZE_HEIGHT], GameState state);
 void render_end_frame();
 void render_reshape(int w, int h);
 void render_cleanup();
+GLuint render_get_texture_id(const char* name);
 
 #endif
