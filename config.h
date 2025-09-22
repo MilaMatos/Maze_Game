@@ -5,7 +5,7 @@
 #define MAZE_HEIGHT 15
 #define CUBE_SIZE 1.0f
 #define WALL_HEIGHT 1.5f
-#define PLAYER_SIZE 0.25f
+#define PLAYER_SIZE 0.2f
 
 #define ESCAPE_SECONDS 30.0f
 
@@ -23,7 +23,7 @@ typedef enum {
 } GameState;
 
 typedef struct {
-    float x, z;
+    float x, y, z;
     float angle;
     float pitch;
     float speed;

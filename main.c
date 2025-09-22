@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(1280, 720);
-    glutCreateWindow("Pac-Man 3D - The Backrooms Re-engineered");
+    glutCreateWindow("MAZE OF LOST SOULS");
 
     if (!game_init()) {
         return -1; // Falha na inicialização

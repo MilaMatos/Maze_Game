@@ -119,32 +119,31 @@ void ui_draw_pause_menu() {
 
 void ui_draw_win_screen() {
     begin_ui_render();
-    draw_fullscreen_texture("menu_bg");
+    draw_fullscreen_texture("win_bg");
     int win_w = glutGet(GLUT_WINDOW_WIDTH), win_h = glutGet(GLUT_WINDOW_HEIGHT);
-    glColor4f(0.1, 0.3, 0.1, 0.8); glRectf(0, 0, win_w, win_h);
-    glColor3f(0.8, 1.0, 0.8);
-    draw_text(win_w / 2 - 100, win_h / 2 + 50, "VOCE ESCAPOU!");
 
     float btn_x = win_w / 2 - 110;
-    end_screen_buttons[0].x = btn_x; end_screen_buttons[0].y = win_h / 2 - 50;
+    end_screen_buttons[0].x = btn_x;
+    end_screen_buttons[0].y = win_h / 2 - 150;
     draw_button(&end_screen_buttons[0]);
-    end_screen_buttons[1].x = btn_x; end_screen_buttons[1].y = win_h / 2 - 120;
+
+    end_screen_buttons[1].x = btn_x;
+    end_screen_buttons[1].y = win_h / 2 - 220;
     draw_button(&end_screen_buttons[1]);
+
     end_ui_render();
 }
 
 void ui_draw_lost_screen() {
     begin_ui_render();
-    draw_fullscreen_texture("menu_bg");
+    draw_fullscreen_texture("loser_bg");
     int win_w = glutGet(GLUT_WINDOW_WIDTH), win_h = glutGet(GLUT_WINDOW_HEIGHT);
-    glColor4f(0.3, 0.1, 0.1, 0.8); glRectf(0, 0, win_w, win_h);
-    glColor3f(1.0, 0.8, 0.8);
-    draw_text(win_w / 2 - 100, win_h / 2 + 50, "O TEMPO ACABOU!");
+
 
     float btn_x = win_w / 2 - 110;
-    end_screen_buttons[0].x = btn_x; end_screen_buttons[0].y = win_h / 2 - 50;
+    end_screen_buttons[0].x = btn_x; end_screen_buttons[0].y = win_h / 2 - 150;
     draw_button(&end_screen_buttons[0]);
-    end_screen_buttons[1].x = btn_x; end_screen_buttons[1].y = win_h / 2 - 120;
+    end_screen_buttons[1].x = btn_x; end_screen_buttons[1].y = win_h / 2 - 220;
     draw_button(&end_screen_buttons[1]);
     end_ui_render();
 }

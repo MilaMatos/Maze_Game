@@ -9,6 +9,7 @@ static bool key_states[256] = {false};
 
 void player_init() {
     player.x = 7.5f;
+    player.y = 0.5f; // Altura inicial do jogador
     player.z = 7.5f;
     player.angle = PI / 2.0f;
     player.pitch = 0.0f;
@@ -27,8 +28,7 @@ bool check_collision(float nx, float nz, const int maze[MAZE_WIDTH][MAZE_HEIGHT]
     for (int x = grid_x - 1; x <= grid_x + 1; x++) {
         for (int z = grid_z - 1; z <= grid_z + 1; z++) {
             if (x < 0 || x >= MAZE_WIDTH || z < 0 || z >= MAZE_HEIGHT) continue;
-
-            if (maze[x][z] == 1 || (maze[x][z] == 9 && game_get_state() == STATE_PLAYING)) {
+            if (maze[x][z] == 1 || (x == 13 && z == 13 && game_get_state() == STATE_PLAYING)) {
                 float w_min_x = x * CUBE_SIZE;
                 float w_max_x = x * CUBE_SIZE + CUBE_SIZE;
                 float w_min_z = z * CUBE_SIZE;
@@ -44,6 +44,7 @@ bool check_collision(float nx, float nz, const int maze[MAZE_WIDTH][MAZE_HEIGHT]
 }
 
 void player_update(const int maze[MAZE_WIDTH][MAZE_HEIGHT]) {
+    // --- Lógica de Movimento Horizontal ---
     float move_x = 0.0f, move_z = 0.0f;
     if (key_states['w']) { move_x += cos(player.angle) * player.speed; move_z += -sin(player.angle) * player.speed; }
     if (key_states['s']) { move_x -= cos(player.angle) * player.speed; move_z -= -sin(player.angle) * player.speed; }
@@ -56,6 +57,20 @@ void player_update(const int maze[MAZE_WIDTH][MAZE_HEIGHT]) {
             player.z += move_z;
         }
     }
+
+    // --- NOVO: Lógica de Gravidade / Queda ---
+    int px = (int)(player.x / CUBE_SIZE);
+    int pz = (int)(player.z / CUBE_SIZE);
+
+    // Se o jogador está sobre o buraco da saída (e a saída está aberta)
+    if (px == 13 && pz == 13 && (game_get_state() != STATE_PLAYING)) {
+        player.y -= 0.1f; // Cai
+    } else {
+        // Se não estiver sobre o buraco, permanece na altura padrão
+        if (player.y < 0.5f) {
+            player.y = 0.5f;
+        }
+    }
 }
 
 void player_handle_keyboard(unsigned char key, bool is_pressed) {
@@ -65,8 +80,8 @@ void player_handle_keyboard(unsigned char key, bool is_pressed) {
     if (is_pressed) {
         if (key == 27) { // Tecla ESC
              GameState current_state = game_get_state();
-             if ((current_state == STATE_PLAYING) & (current_state != STATE_ESCAPING)) {
-                 game_set_state(STATE_PAUSED); // Apenas pausa o jogo
+             if (current_state == STATE_PLAYING || current_state == STATE_ESCAPING) {
+                 game_set_state(STATE_PAUSED);
                  glutSetCursor(GLUT_CURSOR_INHERIT);
              }
         }
