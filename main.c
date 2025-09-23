@@ -2,7 +2,6 @@
 #include "game.h"
 #include "player.h"
 
-// Funções de callback do GLUT que redirecionam para o módulo de jogo
 void display_callback() {
     game_render();
 }
@@ -39,7 +38,7 @@ int main(int argc, char** argv) {
     glutCreateWindow("MAZE OF LOST SOULS");
 
     if (!game_init()) {
-        return -1; // Falha na inicialização
+        return -1;
     }
 
     glutDisplayFunc(display_callback);

@@ -31,7 +31,6 @@ void reset_game() {
     escape_timer = ESCAPE_SECONDS;
     memcpy(maze_grid, initial_maze_grid, sizeof(maze_grid));
     game_set_state(STATE_PLAYING);
-    // Atualiza a luz ambiente de volta ao normal
     render_update_ambient_light(collectibles_eaten, total_collectibles, game_get_state());
     glutSetCursor(GLUT_CURSOR_NONE);
 }
@@ -65,12 +64,10 @@ void game_update() {
             if (maze_grid[px][pz] == 2) {
                 maze_grid[px][pz] = 0;
                 collectibles_eaten++;
-                // --- NOVO: Atualiza a luz ambiente a cada coleta ---
                 render_update_ambient_light(collectibles_eaten, total_collectibles, game_get_state());
 
                 if (collectibles_eaten == total_collectibles) {
                     game_set_state(STATE_ESCAPING);
-                    // --- NOVO: Atualiza a luz ambiente para o estado final ---
                     render_update_ambient_light(collectibles_eaten, total_collectibles, game_get_state());
                 }
             }
@@ -78,8 +75,7 @@ void game_update() {
 
         if (game_state == STATE_ESCAPING) {
             escape_timer -= 16.0f / 1000.0f;
-            // --- ALTERADO: Condição de vitória agora é baseada na queda ---
-            if (player_get()->y < -10.0f) { // Se o jogador cair o suficiente
+            if (player_get()->y < -7.0f) {
                  game_set_state(STATE_WON);
                  glutSetCursor(GLUT_CURSOR_INHERIT);
             } else if (escape_timer <= 0.0f) {

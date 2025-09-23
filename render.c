@@ -11,13 +11,11 @@ static GLuint wall_texture_id, floor_texture_id, ceiling_texture_id;
 static GLuint door_texture_id, sphere_texture_id;
 static GLuint menu_bg_texture_id, loser_bg_texture_id, win_bg_texture_id;
 static GLUquadric* sphere_quadric = NULL;
-
-// --- NOVO: Variáveis para a luz ambiente dinâmica ---
 static GLfloat base_global_ambient[] = {0.08, 0.08, 0.06, 1.0};
 static GLfloat current_global_ambient[] = {0.08, 0.08, 0.06, 1.0};
 
 
-// Protótipos de funções locais
+
 static void draw_maze(const int maze[MAZE_WIDTH][MAZE_HEIGHT], GameState state);
 static void draw_ceiling_and_floor(const int maze[MAZE_WIDTH][MAZE_HEIGHT], GameState state);
 static void draw_exit_hole();
@@ -34,7 +32,7 @@ bool render_init() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_TEXTURE_2D);
 
-    wall_texture_id = load_texture_bmp("textures/wall4.bmp");
+    wall_texture_id = load_texture_bmp("textures/wall.bmp");
     floor_texture_id = load_texture_bmp("textures/floor.bmp");
     ceiling_texture_id = load_texture_bmp("textures/ceiling.bmp");
     door_texture_id = load_texture_bmp("textures/door4.bmp");
@@ -57,7 +55,6 @@ bool render_init() {
 
 void render_start_frame() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // --- NOVO: Aplica a luz ambiente dinâmica a cada frame ---
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, current_global_ambient);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -72,7 +69,7 @@ void render_scene(const int maze[MAZE_WIDTH][MAZE_HEIGHT], GameState state) {
 
     float look_horizontal_dist = cos(p->pitch);
     float look_x = p->x + cos(p->angle) * look_horizontal_dist;
-    float look_y = p->y + sin(p->pitch); // Usa a altura Y do jogador
+    float look_y = p->y + sin(p->pitch);
     float look_z = p->z - sin(p->angle) * look_horizontal_dist;
 
     gluLookAt(p->x, p->y, p->z, look_x, look_y, look_z, 0.0, 1.0, 0.0);
@@ -101,21 +98,19 @@ void render_cleanup() {
     }
 }
 
-// --- NOVO: Função para calcular a cor da luz ambiente ---
 void render_update_ambient_light(int eaten, int total, GameState state) {
-    float max_progressive_red = 0.2f;
-    float final_red_boost = 0.3f;
+    float max_progressive_red = 0.3f;
+    float final_red_boost = 0.35f;
 
-    // Copia a cor base
     memcpy(current_global_ambient, base_global_ambient, sizeof(base_global_ambient));
 
-    // Aumento progressivo
+    // aumentod progressivo
     if (total > 0) {
         float red_increase = (float)eaten / (float)total * max_progressive_red;
         current_global_ambient[0] += red_increase;
     }
 
-    // Aumento final na fase de fuga
+    // Aumento final na
     if (state == STATE_ESCAPING || state == STATE_WON || state == STATE_LOST) {
         current_global_ambient[0] += final_red_boost;
     }
@@ -201,14 +196,12 @@ static void draw_maze(const int maze[MAZE_WIDTH][MAZE_HEIGHT], GameState state) 
     }
 }
 
-// --- ALTERADO: Desenha o chão em blocos para criar o buraco ---
 static void draw_ceiling_and_floor(const int maze[MAZE_WIDTH][MAZE_HEIGHT], GameState state) {
     GLfloat mat_specular[] = {0.1, 0.1, 0.1, 1.0};
     GLfloat mat_shininess[] = {10.0};
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 
-    // Teto (continua sendo um grande plano)
     glBindTexture(GL_TEXTURE_2D, ceiling_texture_id);
     glColor3f(1.0, 1.0, 1.0);
     glBegin(GL_QUADS);
@@ -219,13 +212,12 @@ static void draw_ceiling_and_floor(const int maze[MAZE_WIDTH][MAZE_HEIGHT], Game
         glTexCoord2f(0.0,MAZE_HEIGHT); glVertex3f(0,WALL_HEIGHT,MAZE_HEIGHT*CUBE_SIZE);
     glEnd();
 
-    // Chão (desenhado em blocos, pulando a saída)
     glBindTexture(GL_TEXTURE_2D, floor_texture_id);
     glColor3f(1.0, 1.0, 1.0);
     glBegin(GL_QUADS);
     for (int x = 0; x < MAZE_WIDTH; x++) {
         for (int z = 0; z < MAZE_HEIGHT; z++) {
-            // Não desenha o chão na posição da saída
+
             if (x == 13 && z == 13) continue;
 
             glNormal3f(0, 1, 0);
@@ -237,22 +229,19 @@ static void draw_ceiling_and_floor(const int maze[MAZE_WIDTH][MAZE_HEIGHT], Game
     }
     glEnd();
 
-    // Se a saída estiver aberta, desenha o buraco
     if (state != STATE_PLAYING) {
         draw_exit_hole();
     }
 }
 
-// --- NOVO: Função para desenhar o buraco preto ---
 static void draw_exit_hole() {
     float x = 13.0f, z = 13.0f;
     float hole_depth = -20.0f;
 
-    glDisable(GL_LIGHTING); // O buraco é preto absoluto, não reage à luz
+    glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
     glColor3f(0.0, 0.0, 0.0);
 
-    // Fundo do buraco
     glBegin(GL_QUADS);
         glVertex3f(x*CUBE_SIZE, hole_depth, z*CUBE_SIZE);
         glVertex3f((x+1)*CUBE_SIZE, hole_depth, z*CUBE_SIZE);
@@ -260,24 +249,23 @@ static void draw_exit_hole() {
         glVertex3f(x*CUBE_SIZE, hole_depth, (z+1)*CUBE_SIZE);
     glEnd();
 
-    // Paredes do buraco
     glBegin(GL_QUADS);
-        // Parede -Z
+        // Parede 1
         glVertex3f(x*CUBE_SIZE, 0, z*CUBE_SIZE);
         glVertex3f((x+1)*CUBE_SIZE, 0, z*CUBE_SIZE);
         glVertex3f((x+1)*CUBE_SIZE, hole_depth, z*CUBE_SIZE);
         glVertex3f(x*CUBE_SIZE, hole_depth, z*CUBE_SIZE);
-        // Parede +Z
+        // Parede 2
         glVertex3f(x*CUBE_SIZE, 0, (z+1)*CUBE_SIZE);
         glVertex3f(x*CUBE_SIZE, hole_depth, (z+1)*CUBE_SIZE);
         glVertex3f((x+1)*CUBE_SIZE, hole_depth, (z+1)*CUBE_SIZE);
         glVertex3f((x+1)*CUBE_SIZE, 0, (z+1)*CUBE_SIZE);
-        // Parede -X
+        // Parede 3
         glVertex3f(x*CUBE_SIZE, 0, z*CUBE_SIZE);
         glVertex3f(x*CUBE_SIZE, hole_depth, z*CUBE_SIZE);
         glVertex3f(x*CUBE_SIZE, hole_depth, (z+1)*CUBE_SIZE);
         glVertex3f(x*CUBE_SIZE, 0, (z+1)*CUBE_SIZE);
-        // Parede +X
+        // Parede 4
         glVertex3f((x+1)*CUBE_SIZE, 0, z*CUBE_SIZE);
         glVertex3f((x+1)*CUBE_SIZE, 0, (z+1)*CUBE_SIZE);
         glVertex3f((x+1)*CUBE_SIZE, hole_depth, (z+1)*CUBE_SIZE);
@@ -300,22 +288,24 @@ static void draw_exit_sphere(GameState state) {
 
     GLfloat mat_specular[] = {0.1, 0.1, 0.1, 1.0};
     GLfloat mat_shininess[] = {10.0};
-    GLfloat mat_emission[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_emission[] = {1.0, 0.5, 0.5, 1.0};
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
     glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
 
+    glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, door_texture_id);
-    glColor3f(0.0, 0.0, 0.0); // Esfera preta que emite luz vermelha
+    glColor3f(0.9, 0.5, 0.5);
 
     glPushMatrix();
     float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
     float y_offset = 0.5f + sin(t * 2.0f + 13 + 13) * 0.1f;
     glTranslatef(13.5f * CUBE_SIZE, y_offset, 13.5f * CUBE_SIZE);
-    glutSolidSphere(0.15, 16, 16);
+
+    gluSphere(sphere_quadric, 0.15, 16, 16);
+
     glPopMatrix();
 
-    glEnable(GL_TEXTURE_2D);
     GLfloat no_emission[] = {0.0, 0.0, 0.0, 1.0};
     glMaterialfv(GL_FRONT, GL_EMISSION, no_emission);
 }
@@ -325,7 +315,6 @@ GLuint render_get_texture_id(const char* name) {
     if (strcmp(name, "menu_bg") == 0) {
         return menu_bg_texture_id;
     }
-    // --- NOVO: Reconhece o nome da nova textura ---
     else if (strcmp(name, "loser_bg") == 0) {
         return loser_bg_texture_id;
     }

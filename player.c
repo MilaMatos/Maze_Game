@@ -9,7 +9,7 @@ static bool key_states[256] = {false};
 
 void player_init() {
     player.x = 7.5f;
-    player.y = 0.5f; // Altura inicial do jogador
+    player.y = 0.5f;
     player.z = 7.5f;
     player.angle = PI / 2.0f;
     player.pitch = 0.0f;
@@ -58,15 +58,12 @@ void player_update(const int maze[MAZE_WIDTH][MAZE_HEIGHT]) {
         }
     }
 
-    // --- NOVO: Lógica de Gravidade / Queda ---
     int px = (int)(player.x / CUBE_SIZE);
     int pz = (int)(player.z / CUBE_SIZE);
 
-    // Se o jogador está sobre o buraco da saída (e a saída está aberta)
     if (px == 13 && pz == 13 && (game_get_state() != STATE_PLAYING)) {
-        player.y -= 0.1f; // Cai
+        player.y -= 0.1f; // caai
     } else {
-        // Se não estiver sobre o buraco, permanece na altura padrão
         if (player.y < 0.5f) {
             player.y = 0.5f;
         }

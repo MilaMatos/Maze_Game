@@ -13,14 +13,14 @@
 
 1755266250 c:\users\van_c\desktop\labirinto\maze_game\soil2.h
 
-1758493625 source:c:\users\van_c\desktop\testes\maze_game\main.c
+1758545860 source:c:\users\van_c\desktop\testes\maze_game\main.c
 	<GL/glut.h>
 	"game.h"
 	"player.h"
 
 1758500831 c:\users\van_c\desktop\testes\maze_game\config.h
 
-1758498453 source:c:\users\van_c\desktop\testes\maze_game\game.c
+1758541732 source:c:\users\van_c\desktop\testes\maze_game\game.c
 	<GL/glut.h>
 	<stdio.h>
 	<string.h>
@@ -43,10 +43,10 @@
 	"config.h"
 	<stdbool.h>
 
-1758415320 c:\users\van_c\desktop\testes\maze_game\ui.h
+1758546282 c:\users\van_c\desktop\testes\maze_game\ui.h
 	"config.h"
 
-1758497510 source:c:\users\van_c\desktop\testes\maze_game\player.c
+1758546478 source:c:\users\van_c\desktop\testes\maze_game\player.c
 	<GL/glut.h>
 	<math.h>
 	"player.h"
@@ -69,7 +69,7 @@
 	"ui.h"
 	"render.h"
 
-1758500799 source:c:\users\van_c\desktop\testes\maze_game\render.c
+1758626535 source:c:\users\van_c\desktop\testes\maze_game\render.c
 	<GL/glut.h>
 	<stdio.h>
 	<math.h>
