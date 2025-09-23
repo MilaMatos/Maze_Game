@@ -7,22 +7,20 @@
 #include "player.h"
 #include "ui.h"
 
-// --- Variáveis de Estado do Jogo ---
-GameState game_state;
+static GameState game_state;
 static GameState previous_game_state;
-int collectibles_eaten = 0;
-int total_collectibles = 0;
-float escape_timer = ESCAPE_SECONDS;
+static int collectibles_eaten = 0;
+static int total_collectibles = 0;
+static float escape_timer = ESCAPE_SECONDS;
 
-int maze_grid[MAZE_WIDTH][MAZE_HEIGHT] = {
+static int maze_grid[MAZE_WIDTH][MAZE_HEIGHT] = {
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, {1,0,0,1,0,0,0,0,0,1,1,0,1,2,1}, {1,1,0,1,1,1,0,1,0,0,1,0,1,0,1},
     {1,0,0,0,0,1,0,1,0,1,1,0,0,0,1}, {1,0,1,1,0,1,0,1,0,1,0,0,1,0,1}, {1,0,0,1,0,1,0,0,0,1,0,0,1,0,1},
     {1,1,0,1,0,0,1,1,1,1,0,1,1,0,1}, {1,0,0,0,0,1,1,0,0,0,0,0,0,0,1}, {1,0,1,1,1,1,0,0,1,0,1,1,1,0,1},
     {1,0,0,0,0,0,0,1,1,0,0,0,1,0,1}, {1,0,1,1,1,1,0,1,0,1,1,0,1,2,1}, {1,0,0,0,0,1,0,0,0,0,1,0,0,0,1},
     {1,1,1,0,1,1,1,1,1,0,1,1,1,0,1}, {1,0,0,0,0,0,0,0,1,0,0,0,0,0,1}, {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
-// Cópia para resetar o jogo
-int initial_maze_grid[MAZE_WIDTH][MAZE_HEIGHT];
+static int initial_maze_grid[MAZE_WIDTH][MAZE_HEIGHT];
 
 
 void reset_game() {
@@ -75,7 +73,7 @@ void game_update() {
 
         if (game_state == STATE_ESCAPING) {
             escape_timer -= 16.0f / 1000.0f;
-            if (player_get()->y < -7.0f) {
+            if (player_get()->y < -8.0f) {
                  game_set_state(STATE_WON);
                  glutSetCursor(GLUT_CURSOR_INHERIT);
             } else if (escape_timer <= 0.0f) {
@@ -100,10 +98,18 @@ void game_render() {
     }
 
     switch (game_state) {
-        case STATE_MAIN_MENU: ui_draw_main_menu(); break;
-        case STATE_PAUSED: ui_draw_pause_menu(); break;
-        case STATE_WON: ui_draw_win_screen(); break;
-        case STATE_LOST: ui_draw_lost_screen(); break;
+        case STATE_MAIN_MENU:
+            ui_draw_main_menu();
+            break;
+        case STATE_PAUSED:
+            ui_draw_pause_menu();
+            break;
+        case STATE_WON:
+            ui_draw_end_screen("win_bg");
+            break;
+        case STATE_LOST:
+            ui_draw_end_screen("loser_bg");
+            break;
         default: break;
     }
 
@@ -116,32 +122,31 @@ void game_reshape(int w, int h) {
 
 void game_handle_mouse_click(int button, int state, int x, int y) {
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-        int choice = 0;
-        switch (game_state) {
-            case STATE_MAIN_MENU:
-                choice = ui_check_main_menu_click(x, y);
-                if (choice == 1) reset_game();
-                if (choice == 2) game_cleanup();
-                break;
-            case STATE_PAUSED:
-                choice = ui_check_pause_menu_click(x, y);
-                if (choice == 1) {
-                     game_set_state(previous_game_state);
-                     glutSetCursor(GLUT_CURSOR_NONE);
-                }
-                if (choice == 2) game_set_state(STATE_MAIN_MENU);
-                if (choice == 3) game_cleanup();
-                break;
-            case STATE_WON:
-            case STATE_LOST:
-                choice = ui_check_end_screen_click(x, y);
-                if (choice == 1) game_set_state(STATE_MAIN_MENU);
-                if (choice == 2) game_cleanup();
-                break;
-            default: break;
+        GameState current_state = game_get_state();
+
+        int choice = ui_check_click(x, y, current_state);
+
+        if (choice == 0) return;
+
+        if (current_state == STATE_MAIN_MENU) {
+            if (choice == 1) reset_game();
+            if (choice == 2) game_cleanup();
+        }
+        else if (current_state == STATE_PAUSED) {
+            if (choice == 1) {
+                 game_set_state(game_get_previous_state());
+                 glutSetCursor(GLUT_CURSOR_NONE);
+            }
+            if (choice == 2) game_set_state(STATE_MAIN_MENU);
+            if (choice == 3) game_cleanup();
+        }
+        else if (current_state == STATE_WON || current_state == STATE_LOST) {
+            if (choice == 1) game_set_state(STATE_MAIN_MENU);
+            if (choice == 2) game_cleanup();
         }
     }
 }
+
 
 void game_set_state(GameState new_state) {
     if (new_state == STATE_PAUSED) {
@@ -157,7 +162,6 @@ GameState game_get_state() {
 GameState game_get_previous_state() {
     return previous_game_state;
 }
-
 
 void game_cleanup() {
     render_cleanup();

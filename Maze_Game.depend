@@ -20,7 +20,7 @@
 
 1758500831 c:\users\van_c\desktop\testes\maze_game\config.h
 
-1758541732 source:c:\users\van_c\desktop\testes\maze_game\game.c
+1758628939 source:c:\users\van_c\desktop\testes\maze_game\game.c
 	<GL/glut.h>
 	<stdio.h>
 	<string.h>
@@ -30,9 +30,9 @@
 	"player.h"
 	"ui.h"
 
-1758407044 c:\users\van_c\desktop\testes\maze_game\game.h
-	"config.h"
+1758628398 c:\users\van_c\desktop\testes\maze_game\game.h
 	<stdbool.h>
+	"config.h"
 
 1758497566 c:\users\van_c\desktop\testes\maze_game\render.h
 	<stdbool.h>
@@ -43,15 +43,15 @@
 	"config.h"
 	<stdbool.h>
 
-1758546282 c:\users\van_c\desktop\testes\maze_game\ui.h
+1758628166 c:\users\van_c\desktop\testes\maze_game\ui.h
 	"config.h"
 
-1758546478 source:c:\users\van_c\desktop\testes\maze_game\player.c
+1758629604 source:c:\users\van_c\desktop\testes\maze_game\player.c
 	<GL/glut.h>
 	<math.h>
+	<ctype.h>
 	"player.h"
 	"game.h"
-	<ctype.h>
 
 1758410991 source:c:\users\van_c\desktop\testes\maze_game\texture.c
 	"texture.h"
@@ -61,7 +61,7 @@
 1758406773 c:\users\van_c\desktop\testes\maze_game\texture.h
 	<GL/glut.h>
 
-1758500812 source:c:\users\van_c\desktop\testes\maze_game\ui.c
+1758628251 source:c:\users\van_c\desktop\testes\maze_game\ui.c
 	<GL/glut.h>
 	<stdio.h>
 	<stdbool.h>
@@ -69,7 +69,7 @@
 	"ui.h"
 	"render.h"
 
-1758626535 source:c:\users\van_c\desktop\testes\maze_game\render.c
+1758629397 source:c:\users\van_c\desktop\testes\maze_game\render.c
 	<GL/glut.h>
 	<stdio.h>
 	<math.h>

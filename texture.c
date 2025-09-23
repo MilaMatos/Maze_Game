@@ -9,9 +9,9 @@ GLuint load_texture_bmp(const char* filename) {
     unsigned char* data;
 
     FILE* file = fopen(filename, "rb");
-    if (!file) { printf("Image could not be opened: %s\n", filename); return 0; }
-    if (fread(header, 1, 54, file) != 54) { fclose(file); printf("Not a correct BMP file: %s\n", filename); return 0; }
-    if (header[0] != 'B' || header[1] != 'M') { fclose(file); printf("Not a correct BMP file: %s\n", filename); return 0; }
+    if (!file) { printf("Imagem não foi aberta: %s\n", filename); return 0; }
+    if (fread(header, 1, 54, file) != 54) { fclose(file); printf("Não é um arquivo BMP: %s\n", filename); return 0; }
+    if (header[0] != 'B' || header[1] != 'M') { fclose(file); printf("Não é um arquivo BMP: %s\n", filename); return 0; }
 
     data_pos = *(int*)&(header[0x0A]);
     width = *(int*)&(header[0x12]);

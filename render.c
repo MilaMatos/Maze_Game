@@ -6,15 +6,14 @@
 #include "texture.h"
 #include "player.h"
 
-// Variáveis estáticas
 static GLuint wall_texture_id, floor_texture_id, ceiling_texture_id;
 static GLuint door_texture_id, sphere_texture_id;
-static GLuint menu_bg_texture_id, loser_bg_texture_id, win_bg_texture_id;
+static GLuint menu_bg_texture_id, loser_bg_texture_id;
+static GLuint win_bg_texture_id;
 static GLUquadric* sphere_quadric = NULL;
+
 static GLfloat base_global_ambient[] = {0.08, 0.08, 0.06, 1.0};
 static GLfloat current_global_ambient[] = {0.08, 0.08, 0.06, 1.0};
-
-
 
 static void draw_maze(const int maze[MAZE_WIDTH][MAZE_HEIGHT], GameState state);
 static void draw_ceiling_and_floor(const int maze[MAZE_WIDTH][MAZE_HEIGHT], GameState state);
@@ -32,7 +31,7 @@ bool render_init() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_TEXTURE_2D);
 
-    wall_texture_id = load_texture_bmp("textures/wall.bmp");
+    wall_texture_id = load_texture_bmp("textures/wall4.bmp");
     floor_texture_id = load_texture_bmp("textures/floor.bmp");
     ceiling_texture_id = load_texture_bmp("textures/ceiling.bmp");
     door_texture_id = load_texture_bmp("textures/door4.bmp");
@@ -42,7 +41,8 @@ bool render_init() {
     win_bg_texture_id = load_texture_bmp("textures/win_bg.bmp");
 
     if (wall_texture_id==0 || floor_texture_id==0 || ceiling_texture_id==0 ||
-        door_texture_id==0 || sphere_texture_id==0 || menu_bg_texture_id==0 || loser_bg_texture_id==0 || win_bg_texture_id==0) {
+        door_texture_id==0 || sphere_texture_id==0 || menu_bg_texture_id==0 ||
+        loser_bg_texture_id == 0 || win_bg_texture_id == 0) {
         return false;
     }
 
@@ -104,18 +104,15 @@ void render_update_ambient_light(int eaten, int total, GameState state) {
 
     memcpy(current_global_ambient, base_global_ambient, sizeof(base_global_ambient));
 
-    // aumentod progressivo
     if (total > 0) {
         float red_increase = (float)eaten / (float)total * max_progressive_red;
         current_global_ambient[0] += red_increase;
     }
 
-    // Aumento final na
     if (state == STATE_ESCAPING || state == STATE_WON || state == STATE_LOST) {
         current_global_ambient[0] += final_red_boost;
     }
 
-    // Garante que não passe de 1.0
     if (current_global_ambient[0] > 1.0f) current_global_ambient[0] = 1.0f;
 }
 
@@ -152,43 +149,51 @@ static void lighting_update_dynamic(const int maze[MAZE_WIDTH][MAZE_HEIGHT], Gam
     for (int x = 0; x < MAZE_WIDTH; x++) {
         for (int z = 0; z < MAZE_HEIGHT; z++) {
             if (maze[x][z] == 2) {
-                float sx=x*CUBE_SIZE+0.5f, sz=z*CUBE_SIZE+0.5f;
-                float dist_sq=(p->x-sx)*(p->x-sx)+(p->z-sz)*(p-> z-sz);
+                float sx = x * CUBE_SIZE + 0.5f;
+                float sz = z * CUBE_SIZE + 0.5f;
+                float dist_sq = (p->x - sx) * (p->x - sx) + (p->z - sz) * (p->z - sz);
                 if (!found_sphere || dist_sq < min_dist_sq) {
-                    min_dist_sq=dist_sq; closest_sphere_pos[0]=sx;
-                    closest_sphere_pos[1]=0.5f; closest_sphere_pos[2]=sz;
-                    found_sphere=true;
+                    min_dist_sq = dist_sq;
+                    closest_sphere_pos[0] = sx;
+                    closest_sphere_pos[1] = 0.5f;
+                    closest_sphere_pos[2] = sz;
+                    found_sphere = true;
                 }
             }
         }
     }
-    if(found_sphere){glEnable(GL_LIGHT1);glLightfv(GL_LIGHT1,GL_POSITION,closest_sphere_pos);}
-    else{glDisable(GL_LIGHT1);}
+    if(found_sphere){
+        glEnable(GL_LIGHT1);
+        glLightfv(GL_LIGHT1, GL_POSITION, closest_sphere_pos);
+    } else {
+        glDisable(GL_LIGHT1);
+    }
 
-    if (state==STATE_ESCAPING||state==STATE_WON||state==STATE_LOST){
+    if (state == STATE_ESCAPING || state == STATE_WON || state == STATE_LOST) {
         glEnable(GL_LIGHT2);
-        float t=glutGet(GLUT_ELAPSED_TIME)/1000.0f;
-        float y_offset=0.5f+sin(t*2.0f+13+13)*0.1f;
-        GLfloat exit_light_pos[]={13.5f*CUBE_SIZE,y_offset,13.5f*CUBE_SIZE,1.0f};
-        glLightfv(GL_LIGHT2,GL_POSITION,exit_light_pos);
-    }else{
+        float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+        float y_offset = 0.5f + sin(t * 2.0f + 13 + 13) * 0.1f;
+        GLfloat exit_light_pos[] = {13.5f * CUBE_SIZE, y_offset, 13.5f * CUBE_SIZE, 1.0f};
+        glLightfv(GL_LIGHT2, GL_POSITION, exit_light_pos);
+    } else {
         glDisable(GL_LIGHT2);
     }
 }
 
 static void draw_maze(const int maze[MAZE_WIDTH][MAZE_HEIGHT], GameState state) {
     glBindTexture(GL_TEXTURE_2D, wall_texture_id);
-    GLfloat wall_specular[]={0.1,0.1,0.1,1.0}; GLfloat wall_shininess[]={10.0};
-    glMaterialfv(GL_FRONT,GL_SPECULAR,wall_specular);
-    glMaterialfv(GL_FRONT,GL_SHININESS,wall_shininess);
+    GLfloat wall_specular[] = {0.1, 0.1, 0.1, 1.0};
+    GLfloat wall_shininess[] = {10.0};
+    glMaterialfv(GL_FRONT, GL_SPECULAR, wall_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, wall_shininess);
 
-    for(int x=0;x<MAZE_WIDTH;x++){
-        for(int z=0;z<MAZE_HEIGHT;z++){
-            if(maze[x][z]==1||(x==13&&z==13&&state==STATE_PLAYING)){
+    for(int x = 0; x < MAZE_WIDTH; x++){
+        for(int z = 0; z < MAZE_HEIGHT; z++){
+            if(maze[x][z] == 1 || (x == 13 && z == 13 && state == STATE_PLAYING)){
                 glPushMatrix();
-                glTranslatef(x*CUBE_SIZE+0.5f,WALL_HEIGHT/2.0f,z*CUBE_SIZE+0.5f);
-                glScalef(CUBE_SIZE,WALL_HEIGHT,CUBE_SIZE);
-                glColor3f(1.0,1.0,1.0);
+                glTranslatef(x * CUBE_SIZE + 0.5f, WALL_HEIGHT / 2.0f, z * CUBE_SIZE + 0.5f);
+                glScalef(CUBE_SIZE, WALL_HEIGHT, CUBE_SIZE);
+                glColor3f(1.0, 1.0, 1.0);
                 draw_textured_cube(wall_texture_id);
                 glPopMatrix();
             }
@@ -206,10 +211,10 @@ static void draw_ceiling_and_floor(const int maze[MAZE_WIDTH][MAZE_HEIGHT], Game
     glColor3f(1.0, 1.0, 1.0);
     glBegin(GL_QUADS);
         glNormal3f(0, -1, 0);
-        glTexCoord2f(0.0,0.0); glVertex3f(0,WALL_HEIGHT,0);
-        glTexCoord2f(MAZE_WIDTH,0.0); glVertex3f(MAZE_WIDTH*CUBE_SIZE,WALL_HEIGHT,0);
-        glTexCoord2f(MAZE_WIDTH,MAZE_HEIGHT); glVertex3f(MAZE_WIDTH*CUBE_SIZE,WALL_HEIGHT,MAZE_HEIGHT*CUBE_SIZE);
-        glTexCoord2f(0.0,MAZE_HEIGHT); glVertex3f(0,WALL_HEIGHT,MAZE_HEIGHT*CUBE_SIZE);
+        glTexCoord2f(0.0, 0.0); glVertex3f(0, WALL_HEIGHT, 0);
+        glTexCoord2f(MAZE_WIDTH, 0.0); glVertex3f(MAZE_WIDTH * CUBE_SIZE, WALL_HEIGHT, 0);
+        glTexCoord2f(MAZE_WIDTH, MAZE_HEIGHT); glVertex3f(MAZE_WIDTH * CUBE_SIZE, WALL_HEIGHT, MAZE_HEIGHT * CUBE_SIZE);
+        glTexCoord2f(0.0, MAZE_HEIGHT); glVertex3f(0, WALL_HEIGHT, MAZE_HEIGHT * CUBE_SIZE);
     glEnd();
 
     glBindTexture(GL_TEXTURE_2D, floor_texture_id);
@@ -217,9 +222,7 @@ static void draw_ceiling_and_floor(const int maze[MAZE_WIDTH][MAZE_HEIGHT], Game
     glBegin(GL_QUADS);
     for (int x = 0; x < MAZE_WIDTH; x++) {
         for (int z = 0; z < MAZE_HEIGHT; z++) {
-
             if (x == 13 && z == 13) continue;
-
             glNormal3f(0, 1, 0);
             glTexCoord2f(0.0, 0.0); glVertex3f(x * CUBE_SIZE, 0, z * CUBE_SIZE);
             glTexCoord2f(0.0, 1.0); glVertex3f(x * CUBE_SIZE, 0, (z + 1) * CUBE_SIZE);
@@ -243,43 +246,104 @@ static void draw_exit_hole() {
     glColor3f(0.0, 0.0, 0.0);
 
     glBegin(GL_QUADS);
-        glVertex3f(x*CUBE_SIZE, hole_depth, z*CUBE_SIZE);
-        glVertex3f((x+1)*CUBE_SIZE, hole_depth, z*CUBE_SIZE);
-        glVertex3f((x+1)*CUBE_SIZE, hole_depth, (z+1)*CUBE_SIZE);
-        glVertex3f(x*CUBE_SIZE, hole_depth, (z+1)*CUBE_SIZE);
+        glVertex3f(x * CUBE_SIZE, hole_depth, z * CUBE_SIZE);
+        glVertex3f((x + 1) * CUBE_SIZE, hole_depth, z * CUBE_SIZE);
+        glVertex3f((x + 1) * CUBE_SIZE, hole_depth, (z + 1) * CUBE_SIZE);
+        glVertex3f(x * CUBE_SIZE, hole_depth, (z + 1) * CUBE_SIZE);
     glEnd();
 
     glBegin(GL_QUADS);
-        // Parede 1
-        glVertex3f(x*CUBE_SIZE, 0, z*CUBE_SIZE);
-        glVertex3f((x+1)*CUBE_SIZE, 0, z*CUBE_SIZE);
-        glVertex3f((x+1)*CUBE_SIZE, hole_depth, z*CUBE_SIZE);
-        glVertex3f(x*CUBE_SIZE, hole_depth, z*CUBE_SIZE);
-        // Parede 2
-        glVertex3f(x*CUBE_SIZE, 0, (z+1)*CUBE_SIZE);
-        glVertex3f(x*CUBE_SIZE, hole_depth, (z+1)*CUBE_SIZE);
-        glVertex3f((x+1)*CUBE_SIZE, hole_depth, (z+1)*CUBE_SIZE);
-        glVertex3f((x+1)*CUBE_SIZE, 0, (z+1)*CUBE_SIZE);
-        // Parede 3
-        glVertex3f(x*CUBE_SIZE, 0, z*CUBE_SIZE);
-        glVertex3f(x*CUBE_SIZE, hole_depth, z*CUBE_SIZE);
-        glVertex3f(x*CUBE_SIZE, hole_depth, (z+1)*CUBE_SIZE);
-        glVertex3f(x*CUBE_SIZE, 0, (z+1)*CUBE_SIZE);
-        // Parede 4
-        glVertex3f((x+1)*CUBE_SIZE, 0, z*CUBE_SIZE);
-        glVertex3f((x+1)*CUBE_SIZE, 0, (z+1)*CUBE_SIZE);
-        glVertex3f((x+1)*CUBE_SIZE, hole_depth, (z+1)*CUBE_SIZE);
-        glVertex3f((x+1)*CUBE_SIZE, hole_depth, z*CUBE_SIZE);
+        glVertex3f(x * CUBE_SIZE, 0, z * CUBE_SIZE);
+        glVertex3f((x + 1) * CUBE_SIZE, 0, z * CUBE_SIZE);
+        glVertex3f((x + 1) * CUBE_SIZE, hole_depth, z * CUBE_SIZE);
+        glVertex3f(x * CUBE_SIZE, hole_depth, z * CUBE_SIZE);
+
+        glVertex3f(x * CUBE_SIZE, 0, (z + 1) * CUBE_SIZE);
+        glVertex3f(x * CUBE_SIZE, hole_depth, (z + 1) * CUBE_SIZE);
+        glVertex3f((x + 1) * CUBE_SIZE, hole_depth, (z + 1) * CUBE_SIZE);
+        glVertex3f((x + 1) * CUBE_SIZE, 0, (z + 1) * CUBE_SIZE);
+
+        glVertex3f(x * CUBE_SIZE, 0, z * CUBE_SIZE);
+        glVertex3f(x * CUBE_SIZE, hole_depth, z * CUBE_SIZE);
+        glVertex3f(x * CUBE_SIZE, hole_depth, (z + 1) * CUBE_SIZE);
+        glVertex3f(x * CUBE_SIZE, 0, (z + 1) * CUBE_SIZE);
+
+        glVertex3f((x + 1) * CUBE_SIZE, 0, z * CUBE_SIZE);
+        glVertex3f((x + 1) * CUBE_SIZE, 0, (z + 1) * CUBE_SIZE);
+        glVertex3f((x + 1) * CUBE_SIZE, hole_depth, (z + 1) * CUBE_SIZE);
+        glVertex3f((x + 1) * CUBE_SIZE, hole_depth, z * CUBE_SIZE);
     glEnd();
 
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_LIGHTING);
 }
 
+static void draw_textured_cube(GLuint texture_id) {
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+    glBegin(GL_QUADS);
+        glNormal3f(0.0, 0.0, 1.0);
+        glTexCoord2f(0.0, 0.0); glVertex3f(-0.5, -0.5, 0.5);
+        glTexCoord2f(1.0, 0.0); glVertex3f( 0.5, -0.5, 0.5);
+        glTexCoord2f(1.0, 1.0); glVertex3f( 0.5,  0.5, 0.5);
+        glTexCoord2f(0.0, 1.0); glVertex3f(-0.5,  0.5, 0.5);
 
-static void draw_textured_cube(GLuint texture_id){glBindTexture(GL_TEXTURE_2D,texture_id);glBegin(GL_QUADS);glNormal3f(0.0,0.0,1.0);glTexCoord2f(0.0,0.0);glVertex3f(-0.5,-0.5,0.5);glTexCoord2f(1.0,0.0);glVertex3f(0.5,-0.5,0.5);glTexCoord2f(1.0,1.0);glVertex3f(0.5,0.5,0.5);glTexCoord2f(0.0,1.0);glVertex3f(-0.5,0.5,0.5);glNormal3f(0.0,0.0,-1.0);glTexCoord2f(1.0,0.0);glVertex3f(-0.5,-0.5,-0.5);glTexCoord2f(1.0,1.0);glVertex3f(-0.5,0.5,-0.5);glTexCoord2f(0.0,1.0);glVertex3f(0.5,0.5,-0.5);glTexCoord2f(0.0,0.0);glVertex3f(0.5,-0.5,-0.5);glNormal3f(0.0,1.0,0.0);glTexCoord2f(0.0,1.0);glVertex3f(-0.5,0.5,-0.5);glTexCoord2f(0.0,0.0);glVertex3f(-0.5,0.5,0.5);glTexCoord2f(1.0,0.0);glVertex3f(0.5,0.5,0.5);glTexCoord2f(1.0,1.0);glVertex3f(0.5,0.5,-0.5);glNormal3f(0.0,-1.0,0.0);glTexCoord2f(1.0,1.0);glVertex3f(-0.5,-0.5,-0.5);glTexCoord2f(0.0,1.0);glVertex3f(0.5,-0.5,-0.5);glTexCoord2f(0.0,0.0);glVertex3f(0.5,-0.5,0.5);glTexCoord2f(1.0,0.0);glVertex3f(-0.5,-0.5,0.5);glNormal3f(1.0,0.0,0.0);glTexCoord2f(1.0,0.0);glVertex3f(0.5,-0.5,-0.5);glTexCoord2f(1.0,1.0);glVertex3f(0.5,0.5,-0.5);glTexCoord2f(0.0,1.0);glVertex3f(0.5,0.5,0.5);glTexCoord2f(0.0,0.0);glVertex3f(0.5,-0.5,0.5);glNormal3f(-1.0,0.0,0.0);glTexCoord2f(0.0,0.0);glVertex3f(-0.5,-0.5,-0.5);glTexCoord2f(1.0,0.0);glVertex3f(-0.5,-0.5,0.5);glTexCoord2f(1.0,1.0);glVertex3f(-0.5,0.5,0.5);glTexCoord2f(0.0,1.0);glVertex3f(-0.5,0.5,-0.5);glEnd();}
+        glNormal3f(0.0, 0.0, -1.0);
+        glTexCoord2f(1.0, 0.0); glVertex3f(-0.5, -0.5, -0.5);
+        glTexCoord2f(1.0, 1.0); glVertex3f(-0.5,  0.5, -0.5);
+        glTexCoord2f(0.0, 1.0); glVertex3f( 0.5,  0.5, -0.5);
+        glTexCoord2f(0.0, 0.0); glVertex3f( 0.5, -0.5, -0.5);
 
-static void draw_collectibles(const int maze[MAZE_WIDTH][MAZE_HEIGHT]){GLfloat s[]={1.0,1.0,1.0,1.0},n[]={128.0},e[]={1.0,0.1,0.1,1.0};glMaterialfv(GL_FRONT,GL_SPECULAR,s);glMaterialfv(GL_FRONT,GL_SHININESS,n);glMaterialfv(GL_FRONT,GL_EMISSION,e);glBindTexture(GL_TEXTURE_2D,sphere_texture_id);glColor3f(1.0,1.0,1.0);for(int x=0;x<MAZE_WIDTH;x++){for(int z=0;z<MAZE_HEIGHT;z++){if(maze[x][z]==2){glPushMatrix();float t=glutGet(GLUT_ELAPSED_TIME)/1000.0f;float y=0.5f+sin(t*2.0f+x+z)*0.1f;glTranslatef(x*CUBE_SIZE+0.5f,y,z*CUBE_SIZE+0.5f);gluSphere(sphere_quadric,0.12,16,16);glPopMatrix();}}}GLfloat ne[]={0.0,0.0,0.0,1.0};glMaterialfv(GL_FRONT,GL_EMISSION,ne);}
+        glNormal3f(0.0, 1.0, 0.0);
+        glTexCoord2f(0.0, 1.0); glVertex3f(-0.5, 0.5, -0.5);
+        glTexCoord2f(0.0, 0.0); glVertex3f(-0.5, 0.5,  0.5);
+        glTexCoord2f(1.0, 0.0); glVertex3f( 0.5, 0.5,  0.5);
+        glTexCoord2f(1.0, 1.0); glVertex3f( 0.5, 0.5, -0.5);
+
+        glNormal3f(0.0, -1.0, 0.0);
+        glTexCoord2f(1.0, 1.0); glVertex3f(-0.5, -0.5, -0.5);
+        glTexCoord2f(0.0, 1.0); glVertex3f( 0.5, -0.5, -0.5);
+        glTexCoord2f(0.0, 0.0); glVertex3f( 0.5, -0.5,  0.5);
+        glTexCoord2f(1.0, 0.0); glVertex3f(-0.5, -0.5,  0.5);
+
+        glNormal3f(1.0, 0.0, 0.0);
+        glTexCoord2f(1.0, 0.0); glVertex3f(0.5, -0.5, -0.5);
+        glTexCoord2f(1.0, 1.0); glVertex3f(0.5,  0.5, -0.5);
+        glTexCoord2f(0.0, 1.0); glVertex3f(0.5,  0.5,  0.5);
+        glTexCoord2f(0.0, 0.0); glVertex3f(0.5, -0.5,  0.5);
+
+        glNormal3f(-1.0, 0.0, 0.0);
+        glTexCoord2f(0.0, 0.0); glVertex3f(-0.5, -0.5, -0.5);
+        glTexCoord2f(1.0, 0.0); glVertex3f(-0.5, -0.5,  0.5);
+        glTexCoord2f(1.0, 1.0); glVertex3f(-0.5,  0.5,  0.5);
+        glTexCoord2f(0.0, 1.0); glVertex3f(-0.5,  0.5, -0.5);
+    glEnd();
+}
+
+static void draw_collectibles(const int maze[MAZE_WIDTH][MAZE_HEIGHT]) {
+    GLfloat s[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat n[] = {128.0};
+    GLfloat e[] = {1.0, 0.1, 0.1, 1.0};
+    glMaterialfv(GL_FRONT, GL_SPECULAR, s);
+    glMaterialfv(GL_FRONT, GL_SHININESS, n);
+    glMaterialfv(GL_FRONT, GL_EMISSION, e);
+    glBindTexture(GL_TEXTURE_2D, sphere_texture_id);
+    glColor3f(1.0, 1.0, 1.0);
+
+    for(int x = 0; x < MAZE_WIDTH; x++) {
+        for(int z = 0; z < MAZE_HEIGHT; z++) {
+            if(maze[x][z] == 2) {
+                glPushMatrix();
+                float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+                float y = 0.5f + sin(t * 2.0f + x + z) * 0.1f;
+                glTranslatef(x * CUBE_SIZE + 0.5f, y, z * CUBE_SIZE + 0.5f);
+                gluSphere(sphere_quadric, 0.12, 16, 16);
+                glPopMatrix();
+            }
+        }
+    }
+    GLfloat ne[] = {0.0, 0.0, 0.0, 1.0};
+    glMaterialfv(GL_FRONT, GL_EMISSION, ne);
+}
 
 static void draw_exit_sphere(GameState state) {
     if (state != STATE_ESCAPING && state != STATE_WON && state != STATE_LOST) {
@@ -318,7 +382,6 @@ GLuint render_get_texture_id(const char* name) {
     else if (strcmp(name, "loser_bg") == 0) {
         return loser_bg_texture_id;
     }
-
     else if (strcmp(name, "win_bg") == 0) {
         return win_bg_texture_id;
     }

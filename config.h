@@ -12,7 +12,6 @@
 #define PI 3.1415926535
 #define PITCH_LIMIT 1.55f
 
-// --- Enums e Structs ---
 typedef enum {
     STATE_MAIN_MENU,
     STATE_PLAYING,

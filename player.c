@@ -1,22 +1,13 @@
 #include <GL/glut.h>
 #include <math.h>
+#include <ctype.h>
 #include "player.h"
 #include "game.h"
-#include <ctype.h>
 
 static Player player;
 static bool key_states[256] = {false};
 
-void player_init() {
-    player.x = 7.5f;
-    player.y = 0.5f;
-    player.z = 7.5f;
-    player.angle = PI / 2.0f;
-    player.pitch = 0.0f;
-    player.speed = 0.03f;
-}
-
-bool check_collision(float nx, float nz, const int maze[MAZE_WIDTH][MAZE_HEIGHT]) {
+static bool check_collision(float nx, float nz, const int maze[MAZE_WIDTH][MAZE_HEIGHT]) {
     float p_min_x = nx - PLAYER_SIZE / 2.0f;
     float p_max_x = nx + PLAYER_SIZE / 2.0f;
     float p_min_z = nz - PLAYER_SIZE / 2.0f;
@@ -43,8 +34,16 @@ bool check_collision(float nx, float nz, const int maze[MAZE_WIDTH][MAZE_HEIGHT]
     return false;
 }
 
+void player_init() {
+    player.x = 7.5f;
+    player.y = 0.5f;
+    player.z = 7.5f;
+    player.angle = PI / 2.0f;
+    player.pitch = 0.0f;
+    player.speed = 0.03f;
+}
+
 void player_update(const int maze[MAZE_WIDTH][MAZE_HEIGHT]) {
-    // --- Lógica de Movimento Horizontal ---
     float move_x = 0.0f, move_z = 0.0f;
     if (key_states['w']) { move_x += cos(player.angle) * player.speed; move_z += -sin(player.angle) * player.speed; }
     if (key_states['s']) { move_x -= cos(player.angle) * player.speed; move_z -= -sin(player.angle) * player.speed; }
@@ -62,7 +61,7 @@ void player_update(const int maze[MAZE_WIDTH][MAZE_HEIGHT]) {
     int pz = (int)(player.z / CUBE_SIZE);
 
     if (px == 13 && pz == 13 && (game_get_state() != STATE_PLAYING)) {
-        player.y -= 0.1f; // caai
+        player.y -= 0.1f;
     } else {
         if (player.y < 0.5f) {
             player.y = 0.5f;
@@ -75,7 +74,7 @@ void player_handle_keyboard(unsigned char key, bool is_pressed) {
     if (key >= 'A' && key <= 'Z') key_states[tolower(key)] = is_pressed;
 
     if (is_pressed) {
-        if (key == 27) { // Tecla ESC
+        if (key == 27) {
              GameState current_state = game_get_state();
              if (current_state == STATE_PLAYING || current_state == STATE_ESCAPING) {
                  game_set_state(STATE_PAUSED);

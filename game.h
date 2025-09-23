@@ -1,7 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
-#include "config.h"
+
 #include <stdbool.h>
+#include "config.h"
 
 bool game_init();
 void game_update();
@@ -11,5 +12,6 @@ void game_handle_mouse_click(int button, int state, int x, int y);
 void game_cleanup();
 GameState game_get_state();
 void game_set_state(GameState new_state);
+GameState game_get_previous_state();
 
 #endif
